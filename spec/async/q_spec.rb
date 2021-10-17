@@ -66,4 +66,48 @@ RSpec.describe Async::Q do
       end
     end
   end
+
+  describe "#each" do
+    it "yields messages" do
+      expect do |b|
+        task = reactor.async { q.each(&b) }
+        q << 1
+        q << 2
+        q << 3
+        q << nil
+        task.wait
+      end.to yield_control.exactly(3).times
+    end
+  end
+
+  describe "#async" do
+    it "yields messages" do
+      expect do |b|
+        barrier = Async::Barrier.new
+        task = reactor.async { q.async(parent: barrier, &b) }
+        q << 1
+        q << 2
+        q << 3
+        q << nil
+        task.wait
+        barrier.wait
+      end.to yield_control.exactly(3).times
+    end
+  end
+
+  describe "#expand" do
+    let(:limit) { 1 }
+
+    it "extpands the queue" do
+      expect { q.expand(5) }.to change(q, :limit).from(1).to(6)
+    end
+  end
+
+  describe "#shrink" do
+    let(:limit) { 5 }
+
+    it "extpands the queue" do
+      expect { q.shrink(3) }.to change(q, :limit).from(5).to(2)
+    end
+  end
 end

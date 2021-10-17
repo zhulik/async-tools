@@ -55,7 +55,7 @@ RSpec.describe Async::Channel do
           channel << n
         end
         channel.close
-        expect(total_sum).to be < 4950
+        expect(total_sum).to be < 5050
       end
 
       barrier = Async::Barrier.new
@@ -68,7 +68,7 @@ RSpec.describe Async::Channel do
         end
       end
       barrier.wait
-      expect(total_sum).to eq(4950)
+      expect(total_sum).to eq(5050)
     end
   end
 end
