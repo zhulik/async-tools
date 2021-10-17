@@ -31,7 +31,7 @@ module Async
     def_delegator :@semaphore, :limit, :workers
     def_delegator :@semaphore, :count, :busy
 
-    def_delegator :@task, :wait, :wait
+    def_delegator :@task, :wait
 
     def_delegator :@channel, :close, :stop
     def_delegator :@channel, :open?, :running?

@@ -19,7 +19,7 @@ module Async
       start
     end
 
-    def_delegator :@task, :stop, :stop
+    def_delegator :@task, :stop
     def_delegator :@block, :call, :execute
 
     def active?
