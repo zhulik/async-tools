@@ -18,9 +18,8 @@ module Async
       @closed = false
     end
 
-    %i[size count empty? length].each do |method|
-      def_delegator :@queue, method, method
-    end
+    def_delegators :@queue, :count, :empty?, :length, :size
+    def_delegator :self, :enqueue, :<<
 
     def enqueue(message)
       check_channel_writeable!
@@ -33,8 +32,6 @@ module Async
 
       @queue.enqueue_all(messages.map { |message| [:message, message] })
     end
-
-    def_delegator :self, :enqueue, :<<
 
     def error(e)
       check_channel_writeable!

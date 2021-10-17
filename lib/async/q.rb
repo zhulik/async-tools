@@ -21,9 +21,11 @@ module Async
       @free_notification = Async::Notification.new
     end
 
-    %i[size count empty? length].each do |method|
-      def_delegator :@items, method, method
-    end
+    def_delegators :@items, :count, :empty?, :length, :size
+
+    def_delegator :self, :enqueue, :<<
+    def_delegator :self, :full?, :limited?
+    def_delegator :self, :resize, :scale
 
     def full?
       size >= @limit
@@ -41,8 +43,6 @@ module Async
         @limit = new_limit
       end
     end
-
-    def_delegator :self, :resize, :scale
 
     def expand(n)
       resize(limit + n)
@@ -62,8 +62,6 @@ module Async
     def enqueue_all(items)
       items.each { |item| enqueue(item) }
     end
-
-    def_delegator :self, :enqueue, :<<
 
     def dequeue
       @any_notification.wait while empty?
@@ -86,7 +84,5 @@ module Async
         parent.async(item, &block)
       end
     end
-
-    def_delegator :self, :full?, :limited?
   end
 end
