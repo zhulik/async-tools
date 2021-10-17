@@ -1,8 +1,6 @@
 # Async::Tools
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/async/tools`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+A set of useful [Async](github.com/socketry/async) tools.
 
 ## Installation
 
@@ -22,7 +20,23 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+**More docs coming soon.**
+
+### Classes
+
+#### Async::Q
+
+A drop-in replacement for `Async::Queue` and `Async::LimitedQueue`. Can work as limited or unlimited queue depending on
+initializer arguments. Can be scaled up and down when is in the limited mode.
+
+#### Async::Channel
+
+A thin wrapper around Async::Q that acts like a Go channel. Can be user for delivering messages and exceptions(using `#error` method). Exceptions are being reraised in `#dequeue`, `#each` and `#async`. Can be closed. After being closed automatically stops accepting new messages and schedules graceful stop of all consumers. Awaiing `#each` or `#async` will return, `#dequeue` will raise `ChannelClosedError`.
+
+#### Async::WorkerPool
+
+A thin wrapper around `Async::Channel` and `Async::Semaphore`. WorkerPool can be used to perform concurrent actions with
+limited strictly limited concurrency.
 
 ## Development
 
