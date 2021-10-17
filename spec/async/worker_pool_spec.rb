@@ -31,6 +31,14 @@ RSpec.describe Async::WorkerPool do
     end
   end
 
+  describe "watiting" do
+    context "when no workers are busy" do
+      it "returns 0" do
+        expect(subject.waiting).to eq(0)
+      end
+    end
+  end
+
   it "stress 1", timeout: 120 do
     pool = described_class.new(workers: 10) do |arg|
       Async::Task.current.sleep(0.2)
