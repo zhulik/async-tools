@@ -15,6 +15,7 @@ module Async
       @subscribers = 0
 
       @parent = options[:parent]
+      @closed = false
     end
 
     %i[size count empty? length].each do |method|
@@ -42,18 +43,17 @@ module Async
     end
 
     def close
-      queue = @queue
-      @queue = nil
+      @closed = true
 
-      queue.expand(@subscribers)
+      @queue.expand(@subscribers)
 
       @subscribers.times do
-        queue << [:close]
+        @queue << [:close]
       end
     end
 
     def closed?
-      @queue.nil?
+      @closed
     end
 
     def open?
@@ -96,7 +96,7 @@ module Async
     end
 
     def check_channel_readable!
-      raise ChannelClosedError, "Cannot receive from a closed channel" if closed?
+      raise ChannelClosedError, "Cannot receive from a closed channel" if closed? && empty?
     end
   end
 end
