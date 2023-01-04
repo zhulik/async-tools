@@ -81,7 +81,7 @@ RSpec.describe Async::WorkerPool do
     pool.wait
   end
 
-  it "stress 3" do
+  it "stress 3" do # rubocop:disable RSpec/NoExpectationExample
     pool = described_class.new(workers: 500) do |arg|
       Async::Task.current.sleep(rand(10).to_f / 10)
       arg * 2

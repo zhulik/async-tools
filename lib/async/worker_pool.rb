@@ -1,85 +1,83 @@
 # frozen_string_literal: true
 
-module Async
-  class WorkerPool
-    extend Forwardable
+class Async::WorkerPool
+  extend Forwardable
 
-    class Error < StandardError; end
+  class Error < StandardError; end
 
-    class StoppedError < Error; end
+  class StoppedError < Error; end
 
-    class << self
-      def start(...)
-        new(...)
-      end
-
-      def with(*args, **params, &)
-        new(*args, **params).with(&)
-      end
+  class << self
+    def start(...)
+      new(...)
     end
 
-    def initialize(workers: 1, queue_limit: 1, parent: Async::Task.current, &block)
-      @queue_limit = queue_limit
-      @parent = parent
-      @block = block
-
-      @semaphore = Async::Semaphore.new(workers, parent: @parent)
-      @channel = Async::Channel.new(@queue_limit, parent: @semaphore)
-      @task = start
+    def with(*args, **params, &)
+      new(*args, **params).with(&)
     end
+  end
 
-    def_delegator :@semaphore, :limit, :workers
-    def_delegator :@semaphore, :count, :busy
+  def initialize(workers: 1, queue_limit: 1, parent: Async::Task.current, &block)
+    @queue_limit = queue_limit
+    @parent = parent
+    @block = block
 
-    def_delegator :@task, :wait
+    @semaphore = Async::Semaphore.new(workers, parent: @parent)
+    @channel = Async::Channel.new(@queue_limit, parent: @semaphore)
+    @task = start
+  end
 
-    def_delegator :@channel, :close, :stop
-    def_delegator :@channel, :open?, :running?
-    def_delegator :@channel, :closed?, :stopped?
+  def_delegator :@semaphore, :limit, :workers
+  def_delegator :@semaphore, :count, :busy
 
-    def waiting
-      @semaphore.waiting.size
+  def_delegator :@task, :wait
+
+  def_delegator :@channel, :close, :stop
+  def_delegator :@channel, :open?, :running?
+  def_delegator :@channel, :closed?, :stopped?
+
+  def waiting
+    @semaphore.waiting.size
+  end
+
+  def schedule(task, &block)
+    block ||= @block
+    raise ArgumentError, "Block must be passed to #schedule if it's not passed to #initlaize" if block.nil?
+
+    raise StoppedError, "The pool was stopped" unless running?
+
+    Async::ResultNotification.new.tap do |notification|
+      @channel.enqueue([notification, task, block])
     end
+  end
 
-    def schedule(task, &block)
-      block ||= @block
-      raise ArgumentError, "Block must be passed to #schedule if it's not passed to #initlaize" if block.nil?
+  def schedule_all(tasks, &block)
+    block ||= @block
 
-      raise StoppedError, "The pool was stopped" unless running?
+    raise ArgumentError, "Block must be passed to #schedule_all if it's not passed to #initlaize" if block.nil?
 
-      ResultNotification.new.tap do |notification|
-        @channel.enqueue([notification, task, block])
-      end
-    end
+    raise StoppedError, "The pool was stopped" unless running?
 
-    def schedule_all(tasks, &block)
-      block ||= @block
+    tasks = tasks.map { |task| [Async::ResultNotification.new, task, block] }
 
-      raise ArgumentError, "Block must be passed to #schedule_all if it's not passed to #initlaize" if block.nil?
+    @channel.enqueue_all(tasks)
+    tasks.map(&:first)
+  end
 
-      raise StoppedError, "The pool was stopped" unless running?
+  def with
+    yield self
+  ensure
+    stop
+    wait
+  end
 
-      tasks = tasks.map { |task| [ResultNotification.new, task, block] }
+  private
 
-      @channel.enqueue_all(tasks)
-      tasks.map(&:first)
-    end
-
-    def with
-      yield self
-    ensure
-      stop
-      wait
-    end
-
-    private
-
-    def start
-      @parent.async do
-        @channel.async do |_, (notification, task, block)|
-          notification.signal do
-            block.call(task)
-          end
+  def start
+    @parent.async do
+      @channel.async do |_, (notification, task, block)|
+        notification.signal do
+          block.call(task)
         end
       end
     end

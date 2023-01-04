@@ -15,9 +15,10 @@ loader.push_dir(File.expand_path("..", __dir__.to_s))
 loader.setup
 
 module Async
-  module Tools
-    class Error < StandardError; end
-    # Your code goes here...
+  # Your code goes here...
+  module Tools # rubocop:disable Style/ClassAndModuleChildren
+    class Error < StandardError
+    end
   end
 
   def self.map(collection, **params, &)

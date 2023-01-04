@@ -42,3 +42,6 @@ Naming/MethodParameterName:
     - e
     - n
     - id
+
+Style/ClassAndModuleChildren:
+  EnforcedStyle: compact
