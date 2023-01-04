@@ -51,7 +51,7 @@ RSpec.describe Async::Channel do
     it "does not wait for all subscribers" do
       total_sum = 0
       reactor.async do
-        (0..100).each do |n|
+        101.times do |n|
           channel << n
         end
         channel.close

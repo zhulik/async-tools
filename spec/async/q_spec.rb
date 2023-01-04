@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Async::Q do
-  let(:q) { described_class.new(limit, items: items, parent: reactor) }
+  let(:q) { described_class.new(limit, items:, parent: reactor) }
   let(:limit) { nil }
   let(:items) { [] }
 

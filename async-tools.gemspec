@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description   = "A set of useful tools for async programming with Async."
   spec.homepage      = "https://github.com/zhulik/async-tools"
   spec.license       = "MIT"
-  spec.required_ruby_version = Gem::Requirement.new(">= 2.6.0")
+  spec.required_ruby_version = Gem::Requirement.new(">= 3.2.0")
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/zhulik/async-tools"
@@ -27,6 +27,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "async", "~> 1.30"
-  spec.add_dependency "zeitwerk", "~> 2.4"
+  spec.add_dependency "async", "~> 2.3"
+  spec.add_dependency "zeitwerk", "~> 2.6"
+  spec.metadata["rubygems_mfa_required"] = "true"
 end

@@ -11,9 +11,12 @@ gem "async-rspec"
 gem "rspec"
 
 gem "overcommit"
+
 gem "rubocop"
 gem "rubocop-performance"
 gem "rubocop-rake"
 gem "rubocop-rspec"
+
 gem "simplecov"
+
 gem "solargraph"

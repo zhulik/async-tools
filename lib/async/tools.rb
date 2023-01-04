@@ -20,9 +20,9 @@ module Async
     # Your code goes here...
   end
 
-  def self.map(collection, **params, &block)
+  def self.map(collection, **params, &)
     WorkerPool.with(queue_limit: collection.count, **params) do |pool|
-      pool.schedule_all(collection, &block).map(&:wait)
+      pool.schedule_all(collection, &).map(&:wait)
     end
   end
 end

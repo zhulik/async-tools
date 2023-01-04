@@ -2,14 +2,14 @@
 
 RSpec.describe Async::Tools do
   it "has a version number" do
-    expect(Async::Tools::VERSION).not_to be nil
+    expect(Async::Tools::VERSION).not_to be_nil
   end
 
   describe Async do
     describe ".map" do
       subject do
-        described_class.map(collection, workers: workers) do |item|
-          reactor.sleep(item)
+        described_class.map(collection, workers:) do |item|
+          Async::Task.current.sleep(item)
           item * 2
         end
       end

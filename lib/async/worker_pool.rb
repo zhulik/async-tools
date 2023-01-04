@@ -9,12 +9,12 @@ module Async
     class StoppedError < Error; end
 
     class << self
-      def start(*args, **params, &block)
-        new(*args, **params, &block)
+      def start(...)
+        new(...)
       end
 
-      def with(*args, **params, &block)
-        new(*args, **params).with(&block)
+      def with(*args, **params, &)
+        new(*args, **params).with(&)
       end
     end
 
@@ -38,7 +38,7 @@ module Async
     def_delegator :@channel, :closed?, :stopped?
 
     def waiting
-      @semaphore.waiting.count
+      @semaphore.waiting.size
     end
 
     def schedule(task, &block)
