@@ -28,6 +28,7 @@ class Async::Bus::Bus
       publishing_blocked if chan.full?
       chan << wrapper
     end
+    Async::Task.current.yield
   end
 
   # Blocks!
@@ -43,6 +44,8 @@ class Async::Bus::Bus
     @subscribers[event_name] << chan
     serve(chan, event_name, callable)
   end
+
+  def on_event(&block) = @on_event_callback = block
 
   private
 
@@ -66,7 +69,8 @@ class Async::Bus::Bus
 
     chan.each do |wrapper|
       delivered_at = now
-      wrapper.meta.merge!(delivered_at:, latency: delivered_at - wrapper.meta[:published_at])
+      wrapper.meta[:delivered_at] = delivered_at
+      @on_event_callback&.call(wrapper)
       callable.call(wrapper.payload, unsub:, meta: wrapper.meta)
       break if stopped
     end
