@@ -40,7 +40,7 @@ class Async::WorkerPool
     @semaphore.waiting.size
   end
 
-  def schedule(task, &block)
+  def call(task, **_params, &block)
     block ||= @block
     raise ArgumentError, "Block must be passed to #schedule if it's not passed to #initlaize" if block.nil?
 

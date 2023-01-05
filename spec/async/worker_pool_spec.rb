@@ -20,8 +20,8 @@ RSpec.describe Async::WorkerPool do
     end
   end
 
-  describe "#schedule" do
-    subject { pool.schedule(task) }
+  describe "#call" do
+    subject { pool.call(task) }
 
     let(:task) { 1 }
 
@@ -49,7 +49,7 @@ RSpec.describe Async::WorkerPool do
 
     (1..30).each do |i|
       barrier.async do
-        expect(pool.schedule(i).wait).to eq(i * 2)
+        expect(pool.call(i).wait).to eq(i * 2)
       end
     end
 
@@ -68,7 +68,7 @@ RSpec.describe Async::WorkerPool do
 
     (1..30).each do |i|
       barrier.async do
-        expect(pool.schedule(i).wait).to eq(i * 2)
+        expect(pool.call(i).wait).to eq(i * 2)
       end
     end
 
@@ -92,7 +92,7 @@ RSpec.describe Async::WorkerPool do
     100.times do
       barrier.async do
         loop do
-          pool.schedule(1).wait
+          pool.call(1).wait
           Async::Task.current.sleep(1)
         end
       rescue described_class::StoppedError
@@ -117,7 +117,7 @@ RSpec.describe Async::WorkerPool do
     end
 
     100.times do
-      expect { pool.schedule(1).wait }.to raise_error(StandardError)
+      expect { pool.call(1).wait }.to raise_error(StandardError)
     end
 
     pool.stop
