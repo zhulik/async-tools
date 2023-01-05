@@ -17,7 +17,7 @@ class Async::Channel
     @closed = false
   end
 
-  def_delegators :@queue, :count, :empty?, :length, :size
+  def_delegators :@queue, :count, :empty?, :length, :size, :full?
   def_delegator :self, :enqueue, :<<
 
   def enqueue(message)

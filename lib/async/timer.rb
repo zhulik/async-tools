@@ -39,7 +39,7 @@ class Async::Timer
 
   private
 
-  def start # rubocop:disable Metrics/MethodLength
+  def start
     raise AlreadyStarted, "Timer already started" if active?
 
     @active = true

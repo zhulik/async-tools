@@ -45,3 +45,6 @@ Naming/MethodParameterName:
 
 Style/ClassAndModuleChildren:
   EnforcedStyle: compact
+
+Metrics/MethodLength:
+  Max: 15
