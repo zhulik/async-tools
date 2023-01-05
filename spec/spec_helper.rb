@@ -13,6 +13,8 @@ require "async/barrier"
 
 Zeitwerk::Loader.eager_load_all
 
+Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| load(f) }
+
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = ".rspec_status"
