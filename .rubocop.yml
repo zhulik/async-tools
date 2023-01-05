@@ -48,3 +48,6 @@ Style/ClassAndModuleChildren:
 
 Metrics/MethodLength:
   Max: 15
+
+Lint/UnusedBlockArgument:
+  Enabled: false

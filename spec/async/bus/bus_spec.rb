@@ -3,9 +3,9 @@
 RSpec.describe Async::Bus::Bus, timeout: 500 do
   let(:bus) { described_class.new }
   let(:pool) do
-    Async::WorkerPool.new(workers: 10) do |event|
+    Async::WorkerPool.new(workers: 10) do |_event, unsub:, meta:|
       reactor.sleep(1)
-      pp("Receive: event=#{event}")
+      pp(format("%.5f", meta[:latency]))
     end
   end
 

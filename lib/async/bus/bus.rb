@@ -3,6 +3,8 @@
 class Async::Bus::Bus
   attr_reader :name
 
+  EventWrapper = Data.define(:name, :payload, :meta)
+
   include Console
 
   def initialize(name: :default, limit: 10)
@@ -15,15 +17,16 @@ class Async::Bus::Bus
   # Blocks if any of output channels is full!
   def publish(nameable_or_event, **payload)
     name, payload = normalize(nameable_or_event, payload)
+    wrapper = EventWrapper.new(name, payload,
+                               {
+                                 bus: self,
+                                 published_at: now
+                               })
     return if @subscribers[name].empty?
 
     @subscribers[name].each do |chan|
-      logger.warn(self) { "One of the subscribers is slow, blocking publishing. Event name: #{name}" } if chan.full?
-      chan << payload
-      # rescue Async::Channel::ChannelClosedError
-      #   # It's ok, some of the subscribers unsubscribed
-      #   pp("!!!")
-      #   next
+      publishing_blocked if chan.full?
+      chan << wrapper
     end
   end
 
@@ -34,7 +37,7 @@ class Async::Bus::Bus
       raise ArgumentError, "callable or block must be provided. callable must respond to :call"
     end
 
-    event_name, = normalize(nameable).first
+    event_name = normalize(nameable).first
 
     chan = Async::Channel.new(@limit)
     @subscribers[event_name] << chan
@@ -50,7 +53,7 @@ class Async::Bus::Bus
     n = nameable[:event_name] || nameable["event_name"]
     return [n.to_sym, nameable] if n
 
-    raise ArgumentError, "cannod infer event name from #{nameable.inspect}"
+    raise ArgumentError, "cannot infer event name from #{nameable.inspect}"
   end
 
   def serve(chan, event_name, callable)
@@ -60,11 +63,18 @@ class Async::Bus::Bus
       stopped = true
       @subscribers[event_name].delete(chan)
     }
-    meta = { bus: self }
 
-    chan.each do |event|
-      callable.call(event, unsub:, meta:)
+    chan.each do |wrapper|
+      delivered_at = now
+      wrapper.meta.merge!(delivered_at:, latency: delivered_at - wrapper.meta[:published_at])
+      callable.call(wrapper.payload, unsub:, meta: wrapper.meta)
       break if stopped
     end
   end
+
+  def publishing_blocked
+    logger.warn(self) { "One of the subscribers is slow, blocking publishing. Event name: #{name}" }
+  end
+
+  def now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 end

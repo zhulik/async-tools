@@ -40,14 +40,14 @@ class Async::WorkerPool
     @semaphore.waiting.size
   end
 
-  def call(task, **_params, &block)
+  def call(*args, **params, &block)
     block ||= @block
     raise ArgumentError, "Block must be passed to #schedule if it's not passed to #initlaize" if block.nil?
 
     raise StoppedError, "The pool was stopped" unless running?
 
     Async::ResultNotification.new.tap do |notification|
-      @channel.enqueue([notification, task, block])
+      @channel.enqueue([notification, [args, params], block])
     end
   end
 
@@ -58,7 +58,7 @@ class Async::WorkerPool
 
     raise StoppedError, "The pool was stopped" unless running?
 
-    tasks = tasks.map { |task| [Async::ResultNotification.new, task, block] }
+    tasks = tasks.map { |task| [Async::ResultNotification.new, [[task], {}], block] }
 
     @channel.enqueue_all(tasks)
     tasks.map(&:first)
@@ -75,9 +75,9 @@ class Async::WorkerPool
 
   def start
     @parent.async do
-      @channel.async do |_, (notification, task, block)|
+      @channel.async do |_, (notification, (args, params), block)|
         notification.signal do
-          block.call(task)
+          block.call(*args, **params)
         end
       end
     end
