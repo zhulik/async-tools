@@ -8,12 +8,14 @@ class Async::Bus::Bus
   def initialize(name: :default, limit: 10)
     @name = name
     @limit = limit
+    @closed = false
 
     @subscribers = Hash.new { |hash, key| hash[key] = [] }
   end
 
   # Blocks if any of output channels is full!
   def publish(nameable_or_event, **payload)
+    check_if_open!
     name, payload = normalize(nameable_or_event, payload)
 
     subs = @subscribers[name]
@@ -28,6 +30,7 @@ class Async::Bus::Bus
 
   # Blocks!
   def subscribe(nameable, callable = nil, &block)
+    check_if_open!
     callable ||= block
     unless callable.respond_to?(:call)
       raise ArgumentError, "callable or block must be provided. callable must respond to :call"
@@ -35,9 +38,18 @@ class Async::Bus::Bus
 
     event_name = normalize(nameable).first
 
-    q = Async::Q.new(@limit)
-    @subscribers[event_name] << q
-    serve(q, event_name, callable)
+    chan = Async::Channel.new(@limit)
+    @subscribers[event_name] << chan
+    serve(chan, event_name, callable)
+  end
+
+  def close
+    return if @closed
+
+    @closed = true
+
+    @subscribers.values.flatten.each(&:close)
+    @subscribers.clear
   end
 
   def on_event(&block) = @on_event_callback = block
@@ -55,7 +67,7 @@ class Async::Bus::Bus
     raise ArgumentError, "cannot infer event name from #{nameable.inspect}"
   end
 
-  def serve(queue, event_name, callable)
+  def serve(chan, event_name, callable)
     stopped = false
     unsub = lambda {
       chan.close
@@ -63,7 +75,7 @@ class Async::Bus::Bus
       @subscribers[event_name].delete(chan)
     }
 
-    queue.each do |name, payload|
+    chan.each do |name, payload|
       @on_event_callback&.call(wrapper)
       callable.call(payload, unsub:, meta: { bus: self })
       break if stopped
@@ -72,5 +84,9 @@ class Async::Bus::Bus
 
   def publishing_blocked
     logger.warn(self) { "One of the subscribers is slow, blocking publishing. Event name: #{name}" }
+  end
+
+  def check_if_open!
+    raise "Bus is closed" if @closed
   end
 end
