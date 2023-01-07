@@ -3,8 +3,6 @@
 class Async::Bus::Bus
   attr_reader :name
 
-  EventWrapper = Data.define(:name, :payload, :meta)
-
   include Console
 
   def initialize(name: :default, limit: 10)
@@ -17,16 +15,13 @@ class Async::Bus::Bus
   # Blocks if any of output channels is full!
   def publish(nameable_or_event, **payload)
     name, payload = normalize(nameable_or_event, payload)
-    wrapper = EventWrapper.new(name, payload,
-                               {
-                                 bus: self,
-                                 published_at: now
-                               })
-    return if @subscribers[name].empty?
 
-    @subscribers[name].each do |chan|
+    subs = @subscribers[name]
+    return if subs.empty?
+
+    subs.each do |chan|
       publishing_blocked if chan.full?
-      chan << wrapper
+      chan << [name, payload]
     end
     Async::Task.current.yield
   end
@@ -40,16 +35,17 @@ class Async::Bus::Bus
 
     event_name = normalize(nameable).first
 
-    chan = Async::Channel.new(@limit)
-    @subscribers[event_name] << chan
-    serve(chan, event_name, callable)
+    q = Async::Q.new(@limit)
+    @subscribers[event_name] << q
+    serve(q, event_name, callable)
   end
 
   def on_event(&block) = @on_event_callback = block
 
   private
 
-  def normalize(nameable, payload = {})
+  def normalize(nameable, payload = nil)
+    return [nameable, payload] if nameable.is_a?(Symbol)
     return [nameable.to_sym, payload] if nameable.is_a?(String)
     return [nameable.event_name.to_sym, nameable] if nameable.respond_to?(:event_name)
 
@@ -59,7 +55,7 @@ class Async::Bus::Bus
     raise ArgumentError, "cannot infer event name from #{nameable.inspect}"
   end
 
-  def serve(chan, event_name, callable)
+  def serve(queue, event_name, callable)
     stopped = false
     unsub = lambda {
       chan.close
@@ -67,11 +63,9 @@ class Async::Bus::Bus
       @subscribers[event_name].delete(chan)
     }
 
-    chan.each do |wrapper|
-      delivered_at = now
-      wrapper.meta[:delivered_at] = delivered_at
+    queue.each do |name, payload|
       @on_event_callback&.call(wrapper)
-      callable.call(wrapper.payload, unsub:, meta: wrapper.meta)
+      callable.call(payload, unsub:, meta: { bus: self })
       break if stopped
     end
   end
@@ -79,6 +73,4 @@ class Async::Bus::Bus
   def publishing_blocked
     logger.warn(self) { "One of the subscribers is slow, blocking publishing. Event name: #{name}" }
   end
-
-  def now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 end
