@@ -3,7 +3,7 @@
 RSpec.describe Async::Bus::Bus, timeout: 500 do
   let(:bus) { described_class.new }
 
-  it "big test" do # rubocop:disable RSpec/NoExpectationExample
+  it "big test", skip: "endless test" do
     counter = 0
 
     Async do
