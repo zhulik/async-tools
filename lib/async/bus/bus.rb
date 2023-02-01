@@ -43,6 +43,8 @@ class Async::Bus::Bus
     serve(chan, event_name, callable)
   end
 
+  def async_subscribe(*, **, &) = Async { subscribe(*, **, &) }
+
   def close
     return if @closed
 
