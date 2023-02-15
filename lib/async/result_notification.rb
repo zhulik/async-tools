@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Async::ResultNotification
-  extend Forwardable
-
   def initialize
     @channel = Async::Channel.new
   end
@@ -13,5 +11,5 @@ class Async::ResultNotification
     @channel.error(e)
   end
 
-  def_delegator :@channel, :dequeue, :wait
+  def wait = @channel.dequeue
 end

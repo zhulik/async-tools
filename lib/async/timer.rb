@@ -1,29 +1,28 @@
 # frozen_string_literal: true
 
 class Async::Timer
-  extend Forwardable
-
   attr_reader :dealay, :repeat
 
   class Error < StandardError; end
 
   class AlreadyStarted < Error; end
 
-  def initialize(delay, repeat: true, parent: Async::Task.current, &block)
+  def initialize(delay, repeat: true, start: true, run_on_start: false, parent: Async::Task.current, &block)
+    raise ArgumentError, "Block must be given" if block.nil?
+
     @delay = delay
     @repeat = repeat
+    @run_on_start = run_on_start
     @parent = parent
     @block = block
 
-    start
+    self.start if start
   end
 
-  def_delegator :@task, :stop
-  def_delegator :@block, :call, :execute
+  def stop = @task.stop
+  def call = @block.call
 
-  def active?
-    @active
-  end
+  def active? = @active
 
   def restart
     stop
@@ -31,23 +30,19 @@ class Async::Timer
     start
   end
 
-  def schedule
-    @parent.async do
-      execute
-    end
-  end
-
-  private
-
-  def start
+  def start(run: false)
     raise AlreadyStarted, "Timer already started" if active?
 
+    run_on_start = @run_on_start || run
+
     @active = true
+
+    call if run_on_start
 
     @task = @parent.async do
       loop do
         @parent.sleep(@delay)
-        schedule
+        call
         break unless @repeat
       rescue Async::Stop, Async::TimeoutError
         break

@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Async::Channel
-  extend Forwardable
-
   attr_reader :subscribers
 
   class Error < StandardError; end
@@ -17,8 +15,16 @@ class Async::Channel
     @closed = false
   end
 
-  def_delegators :@queue, :count, :empty?, :length, :size, :full?
-  def_delegator :self, :enqueue, :<<
+  def count = @queue.count
+  def length = @queue.length
+  def size = @queue.size
+
+  def full? = @queue.full?
+  def empty? = @queue.empty?
+  def closed? = @closed
+  def open? = !closed?
+
+  def <<(item) = enqueue(item)
 
   def enqueue(message)
     check_channel_writeable!
@@ -46,14 +52,6 @@ class Async::Channel
     @subscribers.times do
       @queue << [:close]
     end
-  end
-
-  def closed?
-    @closed
-  end
-
-  def open?
-    !closed?
   end
 
   def dequeue

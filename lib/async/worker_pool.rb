@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Async::WorkerPool
-  extend Forwardable
-
   class Error < StandardError; end
 
   class StoppedError < Error; end
@@ -27,18 +25,14 @@ class Async::WorkerPool
     @task = start
   end
 
-  def_delegator :@semaphore, :limit, :workers
-  def_delegator :@semaphore, :count, :busy
+  def workers = @semaphore.limit
+  def busy = @semaphore.count
+  def stop = @channel.close
+  def waiting = @semaphore.waiting.size
+  def wait = @task.wait
 
-  def_delegator :@task, :wait
-
-  def_delegator :@channel, :close, :stop
-  def_delegator :@channel, :open?, :running?
-  def_delegator :@channel, :closed?, :stopped?
-
-  def waiting
-    @semaphore.waiting.size
-  end
+  def stopped? = !running?
+  def running? = @channel.open?
 
   def call(*args, **params, &block)
     block ||= @block
@@ -65,7 +59,7 @@ class Async::WorkerPool
   end
 
   def with
-    yield self
+    yield(self)
   ensure
     stop
     wait

@@ -20,15 +20,16 @@ class Async::Q
     @free_notification = Async::Notification.new
   end
 
-  def_delegators :@items, :count, :empty?, :length, :size
+  def count = @items.count
+  def size = @items.size
+  def length = @items.length
 
-  def_delegator :self, :enqueue, :<<
-  def_delegator :self, :full?, :limited?
-  def_delegator :self, :resize, :scale
+  def full? = size >= @limit
+  def empty? = @items.empty?
 
-  def full?
-    size >= @limit
-  end
+  def expand(n) = resize(limit + n)
+  def shrink(n) = resize(limit - n)
+  def <<(item) = enqueue(item)
 
   def resize(new_limit)
     if new_limit > @limit
@@ -43,14 +44,6 @@ class Async::Q
     end
   end
 
-  def expand(n)
-    resize(limit + n)
-  end
-
-  def shrink(n)
-    resize(limit - n)
-  end
-
   def enqueue(item)
     @free_notification.wait while full?
 
@@ -58,9 +51,7 @@ class Async::Q
     @any_notification.signal
   end
 
-  def enqueue_all(items)
-    items.each { |item| enqueue(item) }
-  end
+  def enqueue_all(items) = items.each { |item| enqueue(item) }
 
   def dequeue
     @any_notification.wait while empty?

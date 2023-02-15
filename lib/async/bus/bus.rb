@@ -44,6 +44,7 @@ class Async::Bus::Bus
   end
 
   def async_subscribe(*, **, &) = Async { subscribe(*, **, &) }
+  def on_event(&block) = @on_event_callback = block
 
   def close
     return if @closed
@@ -53,8 +54,6 @@ class Async::Bus::Bus
     @subscribers.values.flatten.each(&:close)
     @subscribers.clear
   end
-
-  def on_event(&block) = @on_event_callback = block
 
   private
 
