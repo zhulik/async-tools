@@ -33,13 +33,11 @@ class Async::Timer
   def start(run: false)
     raise AlreadyStarted, "Timer already started" if active?
 
-    run_on_start = @run_on_start || run
-
     @active = true
 
-    call if run_on_start
-
     @task = @parent.async do
+      call if @run_on_start || run
+
       loop do
         @parent.sleep(@delay)
         call
