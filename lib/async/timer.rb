@@ -39,7 +39,7 @@ class Async::Timer
       call if @run_on_start || run
 
       loop do
-        @parent.sleep(@delay)
+        sleep(@delay)
         call
         break unless @repeat
       rescue Async::Stop, Async::TimeoutError

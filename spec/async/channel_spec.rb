@@ -23,7 +23,7 @@ RSpec.describe Async::Channel do
       it "enqueues the messages and subscribers received it" do
         reactor.async do |task|
           10.times do |i|
-            task.sleep(0.001)
+            sleep(0.001)
             channel.enqueue(i)
           end
         end
@@ -62,7 +62,7 @@ RSpec.describe Async::Channel do
       5.times do
         barrier.async do |task|
           channel.each do |n|
-            task.sleep(rand / 8)
+            sleep(rand / 8)
             total_sum += n
           end
         end

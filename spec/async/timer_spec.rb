@@ -8,7 +8,7 @@ RSpec.describe Async::Timer do
         described_class.new(0.1, repeat: false) do
           n += 1
         end
-        reactor.sleep(0.3)
+        sleep(0.3)
         expect(n).to eq(2)
       end
     end
@@ -19,7 +19,7 @@ RSpec.describe Async::Timer do
         described_class.new(0.1, repeat: true) do
           n += 1
         end
-        reactor.sleep(0.31)
+        sleep(0.31)
         expect(n).to eq(4)
       end
     end
@@ -52,9 +52,9 @@ RSpec.describe Async::Timer do
       it "restarts the timer" do
         n = 1
         timer = described_class.new(0.3, repeat: false) { n += 1 }
-        reactor.sleep(0.2)
+        sleep(0.2)
         timer.restart
-        reactor.sleep(0.2)
+        sleep(0.2)
         expect(n).to eq(1)
       end
     end
@@ -63,10 +63,10 @@ RSpec.describe Async::Timer do
       it "restarts the timer" do
         n = 1
         timer = described_class.new(0.1, repeat: false) { n += 1 }
-        reactor.sleep(0.2)
+        sleep(0.2)
         expect(n).to eq(2)
         timer.restart
-        reactor.sleep(0.2)
+        sleep(0.2)
         expect(n).to eq(3)
       end
     end

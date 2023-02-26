@@ -9,7 +9,7 @@ RSpec.describe Async::Tools do
     describe ".map" do
       subject do
         described_class.map(collection, workers:) do |item|
-          Async::Task.current.sleep(item)
+          sleep(item)
           item * 2
         end
       end

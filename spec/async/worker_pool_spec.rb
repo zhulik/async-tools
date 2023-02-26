@@ -41,7 +41,7 @@ RSpec.describe Async::WorkerPool do
 
   it "stress 1", timeout: 120 do
     pool = described_class.new(workers: 10) do |arg|
-      Async::Task.current.sleep(0.2)
+      sleep(0.2)
       arg * 2
     end
 
@@ -60,7 +60,7 @@ RSpec.describe Async::WorkerPool do
 
   it "stress 2", timeout: 120 do
     pool = described_class.new(workers: 10) do |arg|
-      Async::Task.current.sleep(0.2)
+      sleep(0.2)
       arg * 2
     end
 
@@ -72,7 +72,7 @@ RSpec.describe Async::WorkerPool do
       end
     end
 
-    reactor.sleep(2)
+    sleep(2)
 
     barrier.stop
     barrier.wait
@@ -83,7 +83,7 @@ RSpec.describe Async::WorkerPool do
 
   it "stress 3" do # rubocop:disable RSpec/NoExpectationExample
     pool = described_class.new(workers: 500) do |arg|
-      Async::Task.current.sleep(rand(10).to_f / 10)
+      sleep(rand(10).to_f / 10)
       arg * 2
     end
 
@@ -93,19 +93,19 @@ RSpec.describe Async::WorkerPool do
       barrier.async do
         loop do
           pool.call(1).wait
-          Async::Task.current.sleep(1)
+          sleep(1)
         end
       rescue described_class::StoppedError
         # It's ok
       end
     end
 
-    reactor.sleep(3)
+    sleep(3)
 
     pool.stop
     pool.wait
 
-    reactor.sleep(3)
+    sleep(3)
 
     barrier.stop
     barrier.wait
