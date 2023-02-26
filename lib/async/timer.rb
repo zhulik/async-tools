@@ -7,20 +7,21 @@ class Async::Timer
 
   class AlreadyStarted < Error; end
 
-  def initialize(delay, repeat: true, start: true, run_on_start: false, parent: Async::Task.current, &block)
-    raise ArgumentError, "Block must be given" if block.nil?
+  def initialize(delay, repeat: true, start: true, run_on_start: false, parent: Async::Task.current, call: nil, &block) # rubocop:disable Metrics/ParameterLists
+    callables = [call, block]
+    raise ArgumentError, "either block or call: must be given" if callables.all?(&:nil?) || callables.none?(&:nil?)
 
     @delay = delay
     @repeat = repeat
     @run_on_start = run_on_start
     @parent = parent
-    @block = block
+    @callable = call || block
 
     self.start if start
   end
 
   def stop = @task.stop
-  def call = @block.call
+  def call = @callable.call
 
   def active? = @active
 
