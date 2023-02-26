@@ -77,7 +77,7 @@ class Async::Channel
     @subscribers -= 1
   end
 
-  def async(parent: (@parent || Task.current), &block)
+  def async(parent: (@parent || Async::Task.current), &block)
     each do |item|
       parent.async(item, &block)
     end

@@ -5,9 +5,11 @@ class Async::Bus::Bus
 
   include Console
 
-  def initialize(name: :default, limit: 10)
+  def initialize(name: :default, limit: 10, parent: Async::Task.current)
     @name = name
     @limit = limit
+    @parent = parent
+
     @closed = false
 
     @subscribers = Hash.new { |hash, key| hash[key] = [] }
@@ -43,7 +45,7 @@ class Async::Bus::Bus
     serve(chan, event_name, callable)
   end
 
-  def async_subscribe(*, **, &) = Async { subscribe(*, **, &) }
+  def async_subscribe(*, **, &) = @parent.async { subscribe(*, **, &) }
   def on_event(&block) = @on_event_callback = block
 
   def close
