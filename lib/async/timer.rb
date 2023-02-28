@@ -43,8 +43,6 @@ class Async::Timer
         sleep(@delay)
         call
         break unless @repeat
-      rescue Async::Stop, Async::TimeoutError
-        break
       ensure
         @active = false
       end
