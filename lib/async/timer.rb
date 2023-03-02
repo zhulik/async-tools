@@ -44,17 +44,21 @@ class Async::Timer
     @active = true
 
     @task = @parent.async do
-      call if @run_on_start || run
+      rescued_call if @run_on_start || run
 
       loop do
         sleep(@delay)
-        call
+        rescued_call
         break unless @repeat
-      rescue StandardError => e
-        @on_error.call(e)
       ensure
         @active = false
       end
     end
+  end
+
+  def rescued_call
+    call
+  rescue StandardError => e
+    @on_error.call(e)
   end
 end

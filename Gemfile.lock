@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    async-tools (0.1.9)
+    async-tools (0.1.10)
       async (~> 2.3)
       zeitwerk (~> 2.6)
 
