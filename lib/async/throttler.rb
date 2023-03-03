@@ -2,13 +2,15 @@
 
 # inspired by https://github.com/negativecode/vines/blob/master/lib/vines/token_bucket.rb
 class Async::Throttler
-  def initialize(capacity, rate)
+  def initialize(capacity, rate, parent: Async::Task.current)
     raise ArgumentError, "capacity must be > 0" unless capacity.positive?
     raise ArgumentError, "rate must be > 0" unless rate.positive?
 
     @capacity = capacity
     @tokens = capacity
     @rate = rate
+    @parent = parent
+
     @timestamp = Time.new
   end
 
@@ -21,6 +23,11 @@ class Async::Throttler
     end
 
     @tokens -= 1
+  end
+
+  def async(parent: @parent, &)
+    wait
+    parent.async(&)
   end
 
   private
