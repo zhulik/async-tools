@@ -58,3 +58,5 @@ Style/SymbolArray:
 Style/WordArray:
   EnforcedStyle: brackets
 
+Style/NumberedParametersLimit:
+  Max: 2
