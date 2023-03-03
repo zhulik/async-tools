@@ -1,52 +1,26 @@
 # frozen_string_literal: true
 
 class Async::App
-  # rubocop:disable Style/GlobalVars
+  extend Async::App::Injector
 
-  module Injector
-    def inject(name)
-      define_method(name) do
-        $__ASYNC_APP.container[name]
-      end
-      private name
-    end
-  end
-
-  module Component
-    def self.included(base)
-      base.extend(Injector)
-      base.inject(:bus)
-
-      base.include(Async::Logger)
-
-      strict = Dry.Types::Strict
-
-      string_like = (strict::String | strict::Symbol).constructor(&:to_s)
-      kv = strict::Hash.map(string_like, strict::String)
-
-      base.const_set(:T, Module.new do
-        include Dry.Types
-        const_set(:StringLike, string_like)
-        const_set(:KV, kv)
-      end)
-    end
-  end
-
-  extend Injector
   include Async::Logger
 
   inject :bus
 
+  # rubocop:disable Style/GlobalVars
   def initialize
     raise "only one instance of #{self.class} is allowed" if $__ASYNC_APP
 
     $__ASYNC_APP = self
-
-    container.register(:bus, Async::Bus.new(:__async_app))
+    @task = Async::Task.current
 
     set_traps!
-    @task = Async::Task.current
-    container_config.each { container.register(_1, _2) }
+    {
+      bus: Async::Bus.new(app_name),
+      **container_config
+    }.each { container.register(_1, _2) }
+
+    start_metrics_server!
     run!
     info { "Started" }
   rescue StandardError => e
@@ -59,6 +33,7 @@ class Async::App
   def container = @container ||= Dry::Container.new
   def run! = nil
   def container_config = {}
+  def app_name = :async_app
 
   def stop
     @task&.stop
@@ -81,5 +56,11 @@ class Async::App
   def force_exit!
     fatal { "Forced exit" }
     exit(1)
+  end
+
+  def start_metrics_server!
+    Metrics::Server.new(prefix: app_name).tap(&:run).tap do |server|
+      bus.subscribe("metrics.updated") { server.update_metrics(_1) }
+    end
   end
 end
