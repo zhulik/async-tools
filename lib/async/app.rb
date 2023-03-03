@@ -12,13 +12,34 @@ class Async::App
     end
   end
 
-  extend Injector
-  include Async::Logger
+  module Component
+    def self.included(base)
+      base.extend(Injector)
+      base.include(Async::Logger)
+
+      types = Module.new do
+        include Dry.Types
+
+        strict = Dry.Types::Strict
+
+        string_like = (strict::String | strict::Symbol).constructor(&:to_s)
+        kv = strict::Hash.map(string_like, strict::String)
+        const_set(:StringLike, string_like)
+        const_set(:KV, kv)
+      end
+
+      base.const_set(:T, types)
+    end
+  end
+
+  include Component
 
   def initialize
-    raise "only one instance if #{self.class} is allowed" if $__ASYNC_APP
+    raise "only one instance of #{self.class} is allowed" if $__ASYNC_APP
 
     $__ASYNC_APP = self
+
+    container.register(:bus, Async::Bus.new(:__async_app))
 
     set_traps!
     @task = Async::Task.current
