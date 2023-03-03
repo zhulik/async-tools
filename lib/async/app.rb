@@ -12,13 +12,15 @@ class Async::App
     raise "only one instance of #{self.class} is allowed" if $__ASYNC_APP
 
     $__ASYNC_APP = self
+    @task = Async::Task.current
 
     set_traps!
-    @task = Async::Task.current
     {
       bus: Async::Bus.new(app_name),
       **container_config
     }.each { container.register(_1, _2) }
+
+    start_metrics_server!
     run!
     info { "Started" }
   rescue StandardError => e
@@ -54,5 +56,11 @@ class Async::App
   def force_exit!
     fatal { "Forced exit" }
     exit(1)
+  end
+
+  def start_metrics_server!
+    Metrics::Server.new(prefix: app_name).tap(&:run).tap do |server|
+      bus.subscribe("metrics.updated") { server.update_metrics(_1) }
+    end
   end
 end
