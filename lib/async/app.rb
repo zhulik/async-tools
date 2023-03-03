@@ -33,6 +33,7 @@ class Async::App
   end
 
   extend Injector
+
   include Async::Logger
 
   inject :bus
@@ -42,11 +43,12 @@ class Async::App
 
     $__ASYNC_APP = self
 
-    container.register(:bus, Async::Bus.new(:__async_app))
-
     set_traps!
     @task = Async::Task.current
-    container_config.each { container.register(_1, _2) }
+    {
+      bus: Async::Bus.new(app_name),
+      **container_config
+    }.each { container.register(_1, _2) }
     run!
     info { "Started" }
   rescue StandardError => e
@@ -59,6 +61,7 @@ class Async::App
   def container = @container ||= Dry::Container.new
   def run! = nil
   def container_config = {}
+  def app_name = :async_app
 
   def stop
     @task&.stop
