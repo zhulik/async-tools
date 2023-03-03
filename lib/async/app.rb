@@ -32,7 +32,10 @@ class Async::App
     end
   end
 
-  include Component
+  extend Injector
+  include Async::Logger
+
+  inject :bus
 
   def initialize
     raise "only one instance of #{self.class} is allowed" if $__ASYNC_APP
