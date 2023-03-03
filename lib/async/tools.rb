@@ -12,6 +12,7 @@ loader = Zeitwerk::Loader.new
 loader.tag = File.basename(__FILE__, ".rb")
 loader.inflector = Zeitwerk::GemInflector.new(__FILE__)
 loader.push_dir(File.expand_path("..", __dir__.to_s))
+
 loader.setup
 
 module Async
