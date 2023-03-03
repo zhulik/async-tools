@@ -15,20 +15,20 @@ class Async::App
   module Component
     def self.included(base)
       base.extend(Injector)
+      base.inject(:bus)
+
       base.include(Async::Logger)
 
-      types = Module.new do
+      strict = Dry.Types::Strict
+
+      string_like = (strict::String | strict::Symbol).constructor(&:to_s)
+      kv = strict::Hash.map(string_like, strict::String)
+
+      base.const_set(:T, Module.new do
         include Dry.Types
-
-        strict = Dry.Types::Strict
-
-        string_like = (strict::String | strict::Symbol).constructor(&:to_s)
-        kv = strict::Hash.map(string_like, strict::String)
         const_set(:StringLike, string_like)
         const_set(:KV, kv)
-      end
-
-      base.const_set(:T, types)
+      end)
     end
   end
 
