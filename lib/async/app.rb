@@ -1,43 +1,13 @@
 # frozen_string_literal: true
 
 class Async::App
-  # rubocop:disable Style/GlobalVars
-
-  module Injector
-    def inject(name)
-      define_method(name) do
-        $__ASYNC_APP.container[name]
-      end
-      private name
-    end
-  end
-
-  module Component
-    def self.included(base)
-      base.extend(Injector)
-      base.inject(:bus)
-
-      base.include(Async::Logger)
-
-      strict = Dry.Types::Strict
-
-      string_like = (strict::String | strict::Symbol).constructor(&:to_s)
-      kv = strict::Hash.map(string_like, strict::String)
-
-      base.const_set(:T, Module.new do
-        include Dry.Types
-        const_set(:StringLike, string_like)
-        const_set(:KV, kv)
-      end)
-    end
-  end
-
-  extend Injector
+  extend Async::App::Injector
 
   include Async::Logger
 
   inject :bus
 
+  # rubocop:disable Style/GlobalVars
   def initialize
     raise "only one instance of #{self.class} is allowed" if $__ASYNC_APP
 
