@@ -5,6 +5,7 @@ class Async::Bus
   # add it to your bundle yourself
 
   # Semantics:
+  # - Lazily registeres events
   # - Synchronous by default
   # - Catches exceptions in subscribers, logs them
   def initialize(name)
