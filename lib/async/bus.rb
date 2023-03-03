@@ -39,5 +39,9 @@ class Async::Bus
     end
   end
 
+  def convert(from_event, to_event) = subscribe(from_event) { publish(to_event, **yield(_1)) }
+
+  private
+
   def log_error(name, e) = warn("Subscriber for #{name.inspect} failed with exception.", e)
 end
