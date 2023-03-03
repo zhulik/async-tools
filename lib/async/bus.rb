@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Async::Bus
+  include Async::Logger
   # dry-events is not a dependency of async-tools on purpose.
   # add it to your bundle yourself
 
@@ -38,5 +39,5 @@ class Async::Bus
     end
   end
 
-  def log_error(name, e) = Console.logger.warn(self, "Subscriber for #{name.inspect} failed with exception.", e)
+  def log_error(name, e) = warn("Subscriber for #{name.inspect} failed with exception.", e)
 end
