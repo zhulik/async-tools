@@ -14,7 +14,7 @@ class Async::Throttler
     @timestamp = Time.new
   end
 
-  def wait(timeout: 0, &)
+  def wait(timeout: 0)
     with_timeout(timeout) do
       while @tokens < 1
         fill!
@@ -25,8 +25,8 @@ class Async::Throttler
     @tokens -= 1
   end
 
-  def async(parent: @parent, &)
-    wait
+  def async(parent: @parent, timeout: 0, &)
+    wait(timeout:)
     parent.async(&)
   end
 
