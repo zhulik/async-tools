@@ -18,4 +18,17 @@ RSpec.describe Async::Cache do
       expect(c).to eq(2)
     end
   end
+
+  describe "#cleanup!" do
+    it "cleans up stale records" do
+      a = 1
+      cache.cache("cache", duration: 1) { a += 1 }
+
+      cache.cleanup!
+      expect(cache.count).to eq(1)
+      sleep(2)
+      cache.cleanup!
+      expect(cache.count).to eq(0)
+    end
+  end
 end
