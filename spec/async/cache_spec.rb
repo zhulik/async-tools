@@ -5,24 +5,27 @@ RSpec.describe Async::Cache do
 
   describe "#cache" do
     it "calls the block only when cached value is expared" do
-      c = 0
+      expect do |b|
+        Async.map(Array.new(10)) { cache.cache("cache", duration: 1, &b) }
+      end.to yield_control.once
 
-      Async.map(Array.new(10)) { cache.cache("cache", duration: 1) { c += 1 } }
+      sleep(0.1)
 
-      expect(c).to eq(1)
+      expect do |b|
+        Async.map(Array.new(10)) { cache.cache("cache", duration: 1, &b) }
+      end.not_to yield_control
 
       sleep(1)
 
-      Async.map(Array.new(10)) { cache.cache("cache", duration: 1) { c += 1 } }
-
-      expect(c).to eq(2)
+      expect do |b|
+        Async.map(Array.new(10)) { cache.cache("cache", duration: 1, &b) }
+      end.to yield_control.once
     end
   end
 
   describe "#cleanup!" do
     it "cleans up stale records" do
-      a = 1
-      cache.cache("cache", duration: 1) { a += 1 }
+      cache.cache("cache", duration: 1)
 
       cache.cleanup!
       expect(cache.count).to eq(1)
