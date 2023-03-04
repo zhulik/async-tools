@@ -2,6 +2,6 @@
 
 module Async # rubocop:disable Style/ClassAndModuleChildren
   module Tools
-    VERSION = "0.2.3"
+    VERSION = "0.2.4"
   end
 end

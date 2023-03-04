@@ -8,7 +8,7 @@ RSpec.describe Async::Tools do
   describe Async do
     describe ".map" do
       subject do
-        described_class.map(collection, workers:) do |item|
+        described_class.map(collection, concurrency:) do |item|
           sleep(item)
           item * 2
         end
@@ -17,7 +17,7 @@ RSpec.describe Async::Tools do
       let(:collection) { [1, 2, 3] }
 
       context "when there is only one worker" do
-        let(:workers) { 1 }
+        let(:concurrency) { 1 }
 
         it "executes jobs sequentially" do
           start = Time.now
@@ -31,7 +31,7 @@ RSpec.describe Async::Tools do
       end
 
       context "when there are multiple workers" do
-        let(:workers) { 3 }
+        let(:concurrency) { 3 }
 
         it "executes jobs concurrently" do
           start = Time.now

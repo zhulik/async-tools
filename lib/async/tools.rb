@@ -22,9 +22,11 @@ module Async
     end
   end
 
-  def self.map(collection, **params, &)
-    WorkerPool.with(queue_limit: collection.count, **params) do |pool|
-      pool.schedule_all(collection, &).map(&:wait)
+  def self.map(collection, concurrency: nil, parent: Async::Task.current, &)
+    Async::Semaphore.new(concurrency || collection.count, parent:).then do |s|
+      collection.map do |item|
+        s.async { yield(item) }
+      end.map(&:wait)
     end
   end
 end
