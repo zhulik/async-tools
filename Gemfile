@@ -8,7 +8,7 @@ gemspec
 gem "rake"
 
 # optional
-gem "dry-events"
+gem "activesupport"
 
 gem "async-http"
 gem "async-rspec"

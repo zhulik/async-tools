@@ -8,6 +8,11 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
+    activesupport (7.0.4.2)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (>= 1.6, < 2)
+      minitest (>= 5.1)
+      tzinfo (~> 2.0)
     ast (2.4.2)
     async (2.3.1)
       console (~> 1.10)
@@ -37,14 +42,10 @@ GEM
       fiber-local
     diff-lcs (1.5.0)
     docile (1.4.0)
-    dry-core (1.0.0)
-      concurrent-ruby (~> 1.0)
-      zeitwerk (~> 2.6)
-    dry-events (1.0.1)
-      concurrent-ruby (~> 1.0)
-      dry-core (~> 1.0, < 2)
     e2mmap (0.1.0)
     fiber-local (1.0.0)
+    i18n (1.12.0)
+      concurrent-ruby (~> 1.0)
     iniparse (1.5.0)
     io-event (1.1.6)
     jaro_winkler (1.5.4)
@@ -53,6 +54,7 @@ GEM
       rexml
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
+    minitest (5.18.0)
     nokogiri (1.14.1-x86_64-linux)
       racc (~> 1.4)
     overcommit (0.60.0)
@@ -141,6 +143,8 @@ GEM
     tilt (2.0.11)
     timers (4.3.5)
     traces (0.8.0)
+    tzinfo (2.0.6)
+      concurrent-ruby (~> 1.0)
     unicode-display_width (2.4.2)
     webrick (1.7.0)
     yard (0.9.28)
@@ -151,10 +155,10 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  activesupport
   async-http
   async-rspec
   async-tools!
-  dry-events
   overcommit
   rake
   rspec

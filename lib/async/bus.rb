@@ -2,30 +2,20 @@
 
 class Async::Bus
   include Async::Logger
-  # dry-events is not a dependency of async-tools on purpose.
-  # add it to your bundle yourself
-
-  # Semantics:
-  # - Lazily registeres events
-  # - Synchronous by default
-  # - Catches exceptions in subscribers, logs them
-  def initialize(name)
-    @name = name
-    @w = Class.new.include(Dry::Events::Publisher[name]).new
-  end
+  # A tiny wrapper around ac ActiveSupport::Notifications
 
   # BLOCKING unless subscribers run in tasks
   def publish(name, *args, **params)
-    @w.register_event(name)
-    @w.publish(name, payload: (args.first || params))
+    ActiveSupport::Notifications.instrument(name, payload: (args.first || params))
   rescue StandardError => e
     log_error(name, e)
   end
 
   # NON-BLOCKING
   def subscribe(name)
-    @w.register_event(name)
-    @w.subscribe(name) { yield(_1[:payload]) }
+    ActiveSupport::Notifications.subscribe(name) do |_name, _start, _finish, _id, params|
+      yield params[:payload]
+    end
   end
 
   # NON-BLOCKING, runs subscriber in a task
