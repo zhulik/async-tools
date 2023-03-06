@@ -7,6 +7,9 @@ gemspec
 
 gem "rake"
 
+# optional
+gem "dry-events"
+
 gem "async-http"
 gem "async-rspec"
 gem "rspec"
