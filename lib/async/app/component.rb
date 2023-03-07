@@ -18,4 +18,6 @@ module Async::App::Component
       const_set(:KV, kv)
     end)
   end
+
+  def run = nil
 end

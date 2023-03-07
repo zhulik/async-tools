@@ -15,11 +15,9 @@ class Async::App
     @task = Async::Task.current
 
     set_traps!
-    {
-      bus: Async::Bus.new(app_name),
-      **container_config
-    }.each { container.register(_1, _2) }
+    init_container!
 
+    start_event_logger!
     start_metrics_server!
     run!
     info { "Started" }
@@ -53,6 +51,13 @@ class Async::App
     trap("TERM") { stop }
   end
 
+  def init_container!
+    {
+      bus: Async::Bus.new,
+      **container_config
+    }.each { container.register(_1, _2) }
+  end
+
   def force_exit!
     fatal { "Forced exit" }
     exit(1)
@@ -63,4 +68,6 @@ class Async::App
       bus.subscribe("metrics.updated") { server.update_metrics(_1) }
     end
   end
+
+  def start_event_logger! = EventLogger.new.run
 end
