@@ -21,6 +21,7 @@ class Async::App
     start_metrics_server!
     run!
     info { "Started" }
+    bus.publish("health.updated", true)
   rescue StandardError => e
     fatal { e }
     stop
