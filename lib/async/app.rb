@@ -65,11 +65,6 @@ class Async::App
     exit(1)
   end
 
-  def start_metrics_server!
-    Metrics::Server.new(prefix: app_name).tap(&:run).tap do |server|
-      bus.subscribe("metrics.updated") { server.update_metrics(_1) }
-    end
-  end
-
+  def start_metrics_server! = WebServer.new(metrics_prefix: app_name).run
   def start_event_logger! = EventLogger.new.run
 end

@@ -1,16 +1,22 @@
 # frozen_string_literal: true
 
-class Async::App::Metrics::Server
+class Async::App::WebServer
+  extend Async::App::Injector
+
   include Async::Logger
+
+  inject :bus
 
   PATHS = ["/metrics", "/metrics/"].freeze
 
-  def initialize(prefix:, port: 8080)
-    @prefix = prefix
+  def initialize(metrics_prefix:, port: 8080)
+    @metrics_prefix = metrics_prefix
     @port = port
   end
 
   def run
+    bus.subscribe("metrics.updated") { update_metrics(_1) }
+
     Async::App::Metrics::RubyRuntimeMonitor.new.run { update_metrics(_1) }
 
     endpoint = Async::HTTP::Endpoint.parse("http://0.0.0.0:#{@port}")
@@ -29,5 +35,5 @@ class Async::App::Metrics::Server
   private
 
   def metrics_store = @metrics_store ||= Async::App::Metrics::Store.new
-  def serializer = @serializer ||= Async::App::Metrics::Serializer.new(prefix: @prefix)
+  def serializer = @serializer ||= Async::App::Metrics::Serializer.new(prefix: @metrics_prefix)
 end
