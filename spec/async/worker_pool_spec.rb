@@ -41,7 +41,7 @@ RSpec.describe Async::WorkerPool do
 
   it "stress 1", timeout: 120 do
     pool = described_class.new(workers: 10) do |arg|
-      sleep(0.2)
+      sleep(0.1)
       arg * 2
     end
 
@@ -72,7 +72,7 @@ RSpec.describe Async::WorkerPool do
       end
     end
 
-    sleep(2)
+    sleep(0.1)
 
     barrier.stop
     barrier.wait
@@ -93,19 +93,19 @@ RSpec.describe Async::WorkerPool do
       barrier.async do
         loop do
           pool.call(1).wait
-          sleep(1)
+          sleep(0.1)
         end
       rescue described_class::StoppedError
         # It's ok
       end
     end
 
-    sleep(3)
+    sleep(0.1)
 
     pool.stop
     pool.wait
 
-    sleep(3)
+    sleep(0.1)
 
     barrier.stop
     barrier.wait

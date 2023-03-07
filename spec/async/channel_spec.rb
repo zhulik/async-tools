@@ -62,7 +62,7 @@ RSpec.describe Async::Channel do
       5.times do
         barrier.async do |task|
           channel.each do |n|
-            sleep(rand / 8)
+            sleep(rand / 80)
             total_sum += n
           end
         end

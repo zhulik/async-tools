@@ -10,11 +10,11 @@ RSpec.describe Async::Tools do
       subject do
         described_class.map(collection, concurrency:) do |item|
           sleep(item)
-          item * 2
+          item * 20
         end
       end
 
-      let(:collection) { [1, 2, 3] }
+      let(:collection) { [0.1, 0.2, 0.3] }
 
       context "when there is only one worker" do
         let(:concurrency) { 1 }
@@ -22,7 +22,7 @@ RSpec.describe Async::Tools do
         it "executes jobs sequentially" do
           start = Time.now
           subject
-          expect(Time.now - start).to be >= 6
+          expect(Time.now - start).to be >= 0.6
         end
 
         it "returns results" do
