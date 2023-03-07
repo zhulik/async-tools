@@ -7,6 +7,9 @@ gemspec
 
 gem "rake"
 
+# optional
+gem "activesupport"
+
 gem "async-http"
 gem "async-rspec"
 gem "rspec"
