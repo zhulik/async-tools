@@ -12,9 +12,9 @@ class Async::Bus
   end
 
   # NON-BLOCKING
-  def subscribe(name)
-    ActiveSupport::Notifications.subscribe(name) do |_name, _start, _finish, _id, params|
-      yield params[:payload]
+  def subscribe(pattern)
+    ActiveSupport::Notifications.subscribe(pattern) do |name, _start, _finish, _id, params|
+      yield params[:payload], name
     end
   end
 
