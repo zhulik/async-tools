@@ -26,7 +26,6 @@ class Async::App
     stop
     exit(1)
   end
-  # rubocop:enable Style/GlobalVars
 
   def container = @container ||= Dry::Container.new
   def run! = nil
@@ -35,8 +34,11 @@ class Async::App
 
   def stop
     @task&.stop
+    $__ASYNC_APP = nil
     info { "Stopped" }
   end
+
+  # rubocop:enable Style/GlobalVars
 
   private
 
