@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Async::App::Metrics::Serializer
+class Async::App::WebServer::MetricsApp::Serializer
   def initialize(prefix:)
     @prefix = prefix
   end
@@ -17,8 +17,6 @@ class Async::App::Metrics::Serializer
   def metric_labels(value) = value[:labels].map { |tag, tag_value| "#{tag}=#{tag_value.to_s.inspect}" }.join(",")
 
   def metric_line(value)
-    labels = metric_labels(value)
-
-    "#{metric_name(value)}{#{labels}} #{value[:value]}" if value.key?(:value)
+    "#{metric_name(value)}{#{metric_labels(value)}} #{value[:value]}" if value.key?(:value)
   end
 end

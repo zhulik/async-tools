@@ -8,8 +8,8 @@ class Async::App::WebServer::MetricsApp
   inject :bus
 
   def initialize(metrics_prefix:)
-    @metrics_store = Async::App::Metrics::Store.new
-    @serializer = Async::App::Metrics::Serializer.new(prefix: metrics_prefix)
+    @metrics_store = Store.new
+    @serializer = Serializer.new(prefix: metrics_prefix)
 
     bus.subscribe("metrics.updated") { update_metrics(_1) }
   end
