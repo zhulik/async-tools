@@ -19,12 +19,12 @@ class Async::Bus
   end
 
   # NON-BLOCKING, runs subscriber in a task
-  def async_subscribe(name, parent: Async::Task.current)
-    subscribe(name) do |event|
+  def async_subscribe(pattern, parent: Async::Task.current)
+    subscribe(pattern) do |event|
       parent.async  do
         yield(event)
       rescue StandardError => e
-        log_error(name, e)
+        log_error(pattern, e)
       end
     end
   end
