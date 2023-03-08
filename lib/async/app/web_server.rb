@@ -8,7 +8,10 @@ class Async::App::WebServer
   inject :bus
 
   def initialize(metrics_prefix:, port: 8080)
-    @router = Async::App::WebServer::Router.new(metrics_prefix:)
+    @router = Async::App::WebServer::Router.new(
+      Async::App::WebServer::MetricsApp.new(metrics_prefix:),
+      Async::App::WebServer::HealthApp.new
+    )
     @port = port
   end
 

@@ -3,11 +3,8 @@
 class Async::App::WebServer::Router
   extend Async::App::Injector
 
-  def initialize(metrics_prefix:)
-    @apps = [
-      Async::App::WebServer::MetricsApp.new(metrics_prefix:),
-      Async::App::WebServer::HealthApp.new
-    ]
+  def initialize(*apps)
+    @apps = apps
   end
 
   def call(request)

@@ -1,15 +1,16 @@
 # frozen_string_literal: true
 
 class Async::App::WebServer::MetricsApp::Serializer
-  def initialize(prefix:)
+  def initialize(prefix:, store:)
     @prefix = prefix
+    @store = store
   end
 
-  def serialize(metrics)
-    metrics.flat_map { metric_line(_1) }
-           .compact
-           .join("\n")
-           .then { "#{_1}\n" }
+  def serialize
+    @store.flat_map { metric_line(_1) }
+          .compact
+          .join("\n")
+          .then { "#{_1}\n" }
   end
 
   def metric_name(value) = "#{@prefix}_#{value[:name]}_#{value[:suffix]}"
