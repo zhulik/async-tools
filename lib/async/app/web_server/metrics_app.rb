@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
 class Async::App::WebServer::MetricsApp
-  extend Async::App::Injector
+  include Async::App::Component
 
   PATHS = ["/metrics", "/metrics/"].freeze
-
-  inject :bus
 
   def initialize(metrics_prefix:)
     store = Store.new

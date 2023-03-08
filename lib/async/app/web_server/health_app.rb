@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 class Async::App::WebServer::HealthApp
-  extend Async::App::Injector
-
-  inject :bus
+  include Async::App::Component
 
   PATHS = ["/health", "/health/"].freeze
 
