@@ -27,14 +27,13 @@ class Async::Timer
     self.start if start
   end
 
-  def stop = @task.stop
+  def stop = @task.stop(true)
   def call = @callable.call
 
   def active? = @active
 
   def restart
     stop
-    @task.wait
     start
   end
 
