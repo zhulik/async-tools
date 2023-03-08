@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Async::App::WebServer
-  extend Async::App::Component
-
   include Async::Logger
 
   def initialize(metrics_prefix:, port: 8080)
