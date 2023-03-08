@@ -12,8 +12,6 @@ class Async::App::WebServer::MetricsApp
     @serializer = Async::App::Metrics::Serializer.new(prefix: metrics_prefix)
 
     bus.subscribe("metrics.updated") { update_metrics(_1) }
-
-    Async::App::Metrics::RubyRuntimeMonitor.new.run { update_metrics(_1) }
   end
 
   def can_handle?(request) = PATHS.include?(request.path)

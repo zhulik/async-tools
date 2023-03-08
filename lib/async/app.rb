@@ -18,8 +18,12 @@ class Async::App
     init_container!
 
     start_event_logger!
-    start_metrics_server!
+    start_web_server!
+
+    start_runtime_metrics_collector!
+
     run!
+
     info { "Started" }
     bus.publish("health.updated", true)
   rescue StandardError => e
@@ -66,6 +70,7 @@ class Async::App
     exit(1)
   end
 
-  def start_metrics_server! = WebServer.new(metrics_prefix: app_name).run
+  def start_web_server! = WebServer.new(metrics_prefix: app_name).run
   def start_event_logger! = EventLogger.new.run
+  def start_runtime_metrics_collector! = Async::App::Metrics::RubyRuntimeMetricsCollector.new.run
 end
