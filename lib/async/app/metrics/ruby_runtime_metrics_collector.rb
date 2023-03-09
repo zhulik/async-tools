@@ -5,7 +5,7 @@ class Async::App::Metrics::RubyRuntimeMetricsCollector
 
   INTERVAL = 5
 
-  def run
+  def run!
     Async::Timer.new(INTERVAL, run_on_start: true, on_error: ->(e) { warn(e) }) do
       bus.publish("metrics.updated", metrics)
     end

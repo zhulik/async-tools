@@ -33,7 +33,6 @@ class Async::App
   end
 
   def container = @container ||= Dry::Container.new
-  def run! = nil
   def container_config = {}
   def app_name = :async_app
 
@@ -70,7 +69,7 @@ class Async::App
     exit(1)
   end
 
-  def start_web_server! = WebServer.new(metrics_prefix: app_name).run
-  def start_event_logger! = EventLogger.new.run
-  def start_runtime_metrics_collector! = Async::App::Metrics::RubyRuntimeMetricsCollector.new.run
+  def start_web_server! = WebServer.new(metrics_prefix: app_name).start!
+  def start_event_logger! = EventLogger.new.start!
+  def start_runtime_metrics_collector! = Async::App::Metrics::RubyRuntimeMetricsCollector.new.start!
 end
