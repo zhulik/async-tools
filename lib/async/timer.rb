@@ -32,9 +32,10 @@ class Async::Timer
 
   def active? = @active
 
-  def restart
+  def restart(delay = @delay, run: false)
     stop
-    start
+    @delay = delay
+    start(run:)
   end
 
   def start(run: false)
