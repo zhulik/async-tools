@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class Async::App::Metrics::RubyRuntimeMetricsCollector
-  include Async::App::Component
   include Async::App::TimerComponent
 
   def on_tick = bus.publish("metrics.updated", metrics)
