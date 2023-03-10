@@ -8,17 +8,20 @@ class Async::App
   inject :bus
 
   # rubocop:disable Style/GlobalVars
-  def initialize
+  def initialize # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
     raise "only one instance of #{self.class} is allowed" if $__ASYNC_APP
 
     $__ASYNC_APP = self
     @task = Async::Task.current
+    container.register(:bus, Async::Bus.new)
+    container.register(:async_app_name, async_app_name)
 
     set_traps!
     init_container!
 
     start_event_logger!
     start_web_server!
+    start_web_apps!
 
     start_runtime_metrics_collector!
 
@@ -34,7 +37,7 @@ class Async::App
 
   def container = @container ||= Dry::Container.new
   def container_config = {}
-  def app_name = :async_app
+  def async_app_name = :async_app
 
   def stop
     @task&.stop
@@ -57,26 +60,19 @@ class Async::App
     trap("TERM") { stop }
   end
 
-  def init_container!
-    {
-      bus: Async::Bus.new,
-      **container_config
-    }.each { container.register(_1, _2) }
-  end
+  def init_container! = container_config.each { container.register(_1, _2) }
 
   def force_exit!
     fatal { "Forced exit" }
     exit(1)
   end
 
-  def web_apps
-    [
-      WebServer::MetricsApp.new(metrics_prefix: app_name),
-      WebServer::HealthApp.new
-    ]
-  end
-
-  def start_web_server! = WebServer.new(web_apps).start!
+  def start_web_server! = WebServer.new.start!
   def start_event_logger! = EventLogger.new.start!
   def start_runtime_metrics_collector! = Async::App::Metrics::RubyRuntimeMetricsCollector.new.start!
+
+  def start_web_apps!
+    WebServer::MetricsApp.new.start!
+    WebServer::HealthApp.new.start!
+  end
 end
