@@ -2,6 +2,7 @@
 
 class Async::App::WebApps::HealthApp
   include Async::App::WebComponent
+  include Async::App::AutoloadComponent
 
   PATHS = ["/health", "/health/"].freeze
 

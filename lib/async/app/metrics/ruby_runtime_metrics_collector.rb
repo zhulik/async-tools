@@ -2,6 +2,7 @@
 
 class Async::App::Metrics::RubyRuntimeMetricsCollector
   include Async::App::TimerComponent
+  include Async::App::AutoloadComponent
 
   def on_tick = bus.publish("metrics.updated", metrics)
   def interval = 5

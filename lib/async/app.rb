@@ -8,7 +8,7 @@ class Async::App
   inject :bus
 
   # rubocop:disable Style/GlobalVars
-  def initialize # rubocop:disable Metrics/MethodLength
+  def initialize
     raise "only one instance of #{self.class} is allowed" if $__ASYNC_APP
 
     $__ASYNC_APP = self
@@ -18,10 +18,8 @@ class Async::App
 
     start_event_logger!
     start_web_server!
-    start_web_apps!
 
-    start_runtime_metrics_collector!
-
+    autoload_components!
     run!
 
     info { "Started" }
@@ -69,12 +67,12 @@ class Async::App
     exit(1)
   end
 
+  def autoload_components!
+    ObjectSpace.each_object(Class)
+               .select { _1.included_modules.include?(Async::App::AutoloadComponent) }
+               .each { _1.new.start! }
+  end
+
   def start_web_server! = WebServer.new.start!
   def start_event_logger! = EventLogger.new.start!
-  def start_runtime_metrics_collector! = Async::App::Metrics::RubyRuntimeMetricsCollector.new.start!
-
-  def start_web_apps!
-    WebApps::MetricsApp.new.start!
-    WebApps::HealthApp.new.start!
-  end
 end

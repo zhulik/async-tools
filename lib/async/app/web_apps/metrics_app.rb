@@ -2,6 +2,7 @@
 
 class Async::App::WebApps::MetricsApp
   include Async::App::WebComponent
+  include Async::App::AutoloadComponent
 
   PATHS = ["/metrics", "/metrics/"].freeze
 

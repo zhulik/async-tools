@@ -13,8 +13,6 @@ loader.tag = File.basename(__FILE__, ".rb")
 loader.inflector = Zeitwerk::GemInflector.new(__FILE__)
 loader.push_dir(File.expand_path("..", __dir__.to_s))
 
-loader.setup
-
 module Async
   # Your code goes here...
   module Tools # rubocop:disable Style/ClassAndModuleChildren
@@ -30,3 +28,6 @@ module Async
     end
   end
 end
+
+loader.setup
+loader.eager_load
