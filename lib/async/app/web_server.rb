@@ -3,11 +3,8 @@
 class Async::App::WebServer
   include Async::App::Component
 
-  def initialize(metrics_prefix:, port: 8080)
-    @router = Async::App::WebServer::Router.new(
-      MetricsApp.new(metrics_prefix:),
-      HealthApp.new
-    )
+  def initialize(apps, port: 8080)
+    @router = Async::App::WebServer::Router.new(*apps)
     @endpoint = Async::HTTP::Endpoint.parse("http://0.0.0.0:#{port}")
   end
 

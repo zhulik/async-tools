@@ -69,7 +69,14 @@ class Async::App
     exit(1)
   end
 
-  def start_web_server! = WebServer.new(metrics_prefix: app_name).start!
+  def web_apps
+    [
+      WebServer::MetricsApp.new(metrics_prefix: app_name),
+      WebServer::HealthApp.new
+    ]
+  end
+
+  def start_web_server! = WebServer.new(web_apps).start!
   def start_event_logger! = EventLogger.new.start!
   def start_runtime_metrics_collector! = Async::App::Metrics::RubyRuntimeMetricsCollector.new.start!
 end
