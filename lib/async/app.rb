@@ -3,11 +3,15 @@
 class Async::App
   include Component
 
-  # rubocop:disable Style/GlobalVars
-  def init!
-    raise "only one instance of #{self.class} is allowed" if $__ASYNC_APP
+  class << self
+    def instance = @instance = instances(self).first
 
-    $__ASYNC_APP = self
+    def instances(klass) = ObjectSpace.each_object(klass)
+  end
+
+  def init!
+    raise "only one instance of #{self.class} is allowed" if instances(self.class).count > 1
+
     @parent = Async::Task.current
     set_traps!
     init_container!
@@ -19,14 +23,15 @@ class Async::App
   end
 
   def stop!
-    @parent&.stop
-    $__ASYNC_APP = nil
+    @parent&.stop(true)
     super
   end
 
-  # rubocop:enable Style/GlobalVars
-
   def container = @container ||= Dry::Container.new
+  def instances(klass) = self.class.instances(klass)
+  def components = instances(Class).select { _1.included_modules.include?(Component) }.reject { _1 <= self.class }
+  def autoloadable_components = components.select { _1.included_modules.include?(AutoloadComponent) }
+  def timer_components = components.select { _1.included_modules.include?(TimerComponent) }
 
   private
 
@@ -65,12 +70,7 @@ class Async::App
     exit(1)
   end
 
-  def autoload_components!
-    ObjectSpace.each_object(Class)
-               .select { _1.included_modules.include?(Async::App::AutoloadComponent) }
-               .each { _1.new.start! }
-  end
-
+  def autoload_components! = autoloadable_components.each { _1.new.start! }
   def start_web_server! = WebServer.new.start!
   def start_event_logger! = EventLogger.new.start!
 end

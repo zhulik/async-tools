@@ -3,7 +3,7 @@
 module Async::App::Injector
   def inject(name)
     define_method(name) do
-      $__ASYNC_APP.container[name] # rubocop:disable Style/GlobalVars
+      Async::App.instance.container[name]
     end
     private name
   end
