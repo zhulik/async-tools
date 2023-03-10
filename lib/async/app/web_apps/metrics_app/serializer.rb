@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Async::App::WebServer::MetricsApp::Serializer
+class Async::App::WebApps::MetricsApp::Serializer
   def initialize(prefix:, store:)
     @prefix = prefix
     @store = store

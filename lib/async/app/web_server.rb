@@ -5,8 +5,22 @@ class Async::App::WebServer
 
   APP_ADDED = "async-app.web_app.added"
 
+  class Router
+    def initialize
+      @apps = []
+    end
+
+    def add(app) = @apps << app
+
+    def call(request)
+      @apps.reverse_each { return Protocol::HTTP::Response[*_1.call(request)] if _1.can_handle?(request) }
+
+      Protocol::HTTP::Response[404, {}, ["Not found"]]
+    end
+  end
+
   def initialize(port: 8080)
-    @router = Async::App::WebServer::Router.new
+    @router = Router.new
     @endpoint = Async::HTTP::Endpoint.parse("http://0.0.0.0:#{port}")
   end
 

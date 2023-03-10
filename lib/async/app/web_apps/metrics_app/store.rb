@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Async::App::WebServer::MetricsApp::Store
+class Async::App::WebApps::MetricsApp::Store
   include Enumerable
 
   def set(name, value:, suffix: "total", **labels)
