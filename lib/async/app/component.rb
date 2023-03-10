@@ -15,7 +15,10 @@ module Async::App::Component
   end
 
   def init! = nil
-  def run! = nil
+  def run! = info { "Started" }
+
+  # TODO: unsubscribe from everything on stop
+  def stop! = info { "Stopped" }
 
   def after_init = nil
   def after_run = nil

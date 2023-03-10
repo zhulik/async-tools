@@ -1,58 +1,56 @@
 # frozen_string_literal: true
 
 class Async::App
-  extend Async::App::Injector
-
-  include Async::Logger
-
-  inject :bus
+  include Component
 
   # rubocop:disable Style/GlobalVars
-  def initialize
+  def init!
     raise "only one instance of #{self.class} is allowed" if $__ASYNC_APP
 
     $__ASYNC_APP = self
-    @task = Async::Task.current
+    @parent = Async::Task.current
     set_traps!
     init_container!
-
-    start_event_logger!
-    start_web_server!
-
-    autoload_components!
-    run!
-
-    info { "Started" }
-    bus.publish("health.updated", true)
+    super
   rescue StandardError => e
     fatal { e }
-    stop
+    stop!
     exit(1)
   end
 
-  def container = @container ||= Dry::Container.new
-  def container_config = {}
-  def async_app_name = :async_app
-
-  def stop
-    @task&.stop
+  def stop!
+    @parent&.stop
     $__ASYNC_APP = nil
-    info { "Stopped" }
+    super
   end
 
   # rubocop:enable Style/GlobalVars
 
+  def container = @container ||= Dry::Container.new
+
   private
+
+  def container_config = {}
+  def async_app_name = :async_app
+
+  def run!
+    start_event_logger!
+    start_web_server!
+
+    autoload_components!
+    super
+    bus.publish("health.updated", true)
+  end
 
   def set_traps!
     trap("INT") do
       force_exit! if @stopping
       @stopping = true
       warn { "Interrupted, stopping. Press ^C once more to force exit." }
-      stop
+      stop!
     end
 
-    trap("TERM") { stop }
+    trap("TERM") { stop! }
   end
 
   def init_container!

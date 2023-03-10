@@ -13,7 +13,6 @@ module Async::App::TimerComponent
     end
 
     def run!
-      super
       return if @timer.active?
 
       @timer.start(interval)
@@ -21,9 +20,8 @@ module Async::App::TimerComponent
     end
 
     def stop!
-      super
       @timer&.stop
-      info { "Stopped" }
+      super
     end
 
     # TimerComponent - specific methods
