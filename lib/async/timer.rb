@@ -7,7 +7,7 @@ class Async::Timer
 
   class AlreadyStarted < Error; end
 
-  def initialize(delay, # rubocop:disable Metrics/CyclomaticComplexity,Metrics/ParameterLists
+  def initialize(delay = nil, # rubocop:disable Metrics/CyclomaticComplexity,Metrics/ParameterLists
                  repeat: true,
                  start: true,
                  run_on_start: false,
@@ -34,13 +34,14 @@ class Async::Timer
 
   def restart(delay = @delay, run: false)
     stop
-    @delay = delay
-    start(run:)
+    start(delay, run:)
   end
 
-  def start(run: false)
+  def start(delay = @delay, run: false)
     raise AlreadyStarted, "Timer already started" if active?
+    raise ArgumentError, "delay cannot be nil" if delay.nil?
 
+    @delay = delay
     @active = true
 
     @task = @parent.async do

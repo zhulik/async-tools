@@ -2,15 +2,14 @@
 
 class Async::App::Metrics::RubyRuntimeMetricsCollector
   include Async::App::Component
+  include Async::App::TimerComponent
 
-  INTERVAL = 5
+  def on_tick = bus.publish("metrics.updated", metrics)
+  def interval = 5
+  def run_on_start = true
+  def on_error(exception) = warn { exception }
 
-  def run!
-    Async::Timer.new(INTERVAL, run_on_start: true, on_error: ->(e) { warn(e) }) do
-      bus.publish("metrics.updated", metrics)
-    end
-    info { "Started" }
-  end
+  private
 
   def metrics
     fibers = ObjectSpace.each_object(Fiber)
