@@ -17,6 +17,8 @@ Style/StringLiteralsInInterpolation:
 
 Layout/LineLength:
   Max: 120
+  Exclude:
+    - spec/**/*_spec.rb
 
 Style/Documentation:
   Enabled: false
@@ -60,3 +62,6 @@ Style/WordArray:
 
 Style/NumberedParametersLimit:
   Max: 2
+
+RSpec/EmptyExampleGroup:
+  Enabled: false
