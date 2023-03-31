@@ -104,4 +104,38 @@ RSpec.describe Async::Signals::Signal do
       end
     end
   end
+
+  describe "#emit" do
+    subject { signal.send(:emit, "blah", "blah") }
+
+    context "when connected to a block" do
+      it "notifies receiver" do
+        expect do |b|
+          signal.connect(&b)
+          subject
+        end.to yield_control.once
+      end
+    end
+
+    context "when connected to a callable" do
+      it "notifies receiver" do
+        expect do |b|
+          signal.connect(lambda(&b)) # rubocop:disable Lint/LambdaWithoutLiteralBlock
+          subject
+        end.to yield_control.once
+      end
+    end
+
+    context "when connected to a signal" do
+      let(:another_signal) { described_class.new(:another_signal, [String, String]) }
+
+      it "notifies receiver" do
+        signal.connect(another_signal)
+        expect do |b|
+          another_signal.connect(&b)
+          subject
+        end.to yield_control.once
+      end
+    end
+  end
 end
