@@ -11,13 +11,13 @@ class Async::Signals::Signal
     @arg_types = arg_types
 
     @validator = Validator.new(arg_types)
-    @connections = Set.new
+    @connections = {}
   end
 
   def connect(callable = nil, mode: :direct, one_shot: false, &block)
     callable = @validator.validate_callable!(callable, block)
 
-    Connection.new(callable, self, mode:, one_shot:).tap { @connections << _1 }
+    Connection.new(callable, self, mode:, one_shot:).tap { @connections[callable] = _1 }
   end
 
   def disconnect(callable)
@@ -31,5 +31,5 @@ class Async::Signals::Signal
     notify_subscribers(args)
   end
 
-  def notify_subscribers(args) = @connections.each { _1.call(*args) }
+  def notify_subscribers(args) = @connections.each { _2.call(*args) }
 end

@@ -64,4 +64,44 @@ RSpec.describe Async::Signals::Signal do
       end
     end
   end
+
+  describe "#disconnect" do
+    subject { signal.disconnect(callable) }
+
+    context "when argument is lambda" do
+      let(:callable) { ->(a, b) {} }
+
+      before { signal.connect(callable) }
+
+      it "unsubscribes" do
+        expect { subject }.to change { signal.connections.count }.from(1).to(0)
+      end
+    end
+
+    context "when argument is a signal" do
+      let(:callable) { described_class.new(:another_signal, [String, String]) }
+
+      before { signal.connect(callable) }
+
+      it "unsubscribes" do
+        expect { subject }.to change { signal.connections.count }.from(1).to(0)
+      end
+    end
+
+    context "when argument is invalid" do
+      let(:callable) { "blah" }
+
+      it "raises an exception" do
+        expect { subject }.to raise_error(ArgumentError, "given callable is not connected to this signal")
+      end
+    end
+
+    context "when argument was not subscribed" do
+      let(:callable) { ->(a, b) {} }
+
+      it "raises an exception" do
+        expect { subject }.to raise_error(ArgumentError, "given callable is not connected to this signal")
+      end
+    end
+  end
 end
