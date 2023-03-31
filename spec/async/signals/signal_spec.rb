@@ -55,5 +55,13 @@ RSpec.describe Async::Signals::Signal do
         expect { subject }.to raise_error(ArgumentError, "callable must respond to #call or be a Signal")
       end
     end
+
+    context "when neither callable or block is given" do
+      subject { signal.connect }
+
+      it "raises an exception" do
+        expect { subject }.to raise_error(ArgumentError, "callable OR block must be passed")
+      end
+    end
   end
 end
