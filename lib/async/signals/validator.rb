@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Async::Signals::Validator
-  Signal = Async::Signals::Signal
-
   def initialize(arg_types)
     @arg_types = arg_types
   end
@@ -18,7 +16,7 @@ class Async::Signals::Validator
   def validate_callable!(callable, block)
     get_signal_or_callable!(callable, block).tap do |callable_or_signal|
       validate_callable_type!(callable_or_signal)
-      validate_signal_arity!(callable_or_signal) if callable_or_signal.is_a?(Signal)
+      validate_signal_arity!(callable_or_signal) if callable_or_signal.respond_to?(:emit, true)
       validate_arity!(callable_or_signal) if callable_or_signal.respond_to?(:arity)
     end
   end
@@ -35,7 +33,7 @@ class Async::Signals::Validator
   end
 
   def validate_callable_type!(callable)
-    return if callable.respond_to?(:call) || callable.is_a?(Signal)
+    return if callable.respond_to?(:call) || callable.respond_to?(:emit, true)
 
     raise ArgumentError, "callable must respond to #call or be a Signal"
   end
