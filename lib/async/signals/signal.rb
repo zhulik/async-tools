@@ -31,5 +31,11 @@ class Async::Signals::Signal
     notify_subscribers(args)
   end
 
-  def notify_subscribers(args) = @connections.each { _2.call(*args) }
+  def notify_subscribers(args)
+    @connections.values.shuffle.each do |connection|
+      connection.call(*args)
+    ensure
+      connection.disconnect if connection.one_shot?
+    end
+  end
 end
