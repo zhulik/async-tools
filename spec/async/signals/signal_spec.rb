@@ -117,6 +117,22 @@ RSpec.describe Async::Signals::Signal do
       end
     end
 
+    context "when has one shot connection" do
+      it "notifies receiver" do
+        expect do |b|
+          signal.connect(one_shot: true, &b)
+          subject
+        end.to yield_control.once
+      end
+
+      it "removes the connection" do
+        expect do
+          signal.connect(->(a, b) {}, one_shot: true)
+          subject
+        end.not_to(change { signal.connections.count })
+      end
+    end
+
     context "when connected to a callable" do
       it "notifies receiver" do
         expect do |b|
