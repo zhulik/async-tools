@@ -23,4 +23,5 @@ gem "rubocop-rspec"
 
 gem "simplecov"
 
+gem "binding_of_caller"
 gem "solargraph"

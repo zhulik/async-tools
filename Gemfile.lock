@@ -36,10 +36,13 @@ GEM
       rspec-memory (~> 1.0)
     backport (1.2.0)
     benchmark (0.2.1)
+    binding_of_caller (1.0.0)
+      debug_inspector (>= 0.0.1)
     childprocess (4.1.0)
     concurrent-ruby (1.2.2)
     console (1.16.2)
       fiber-local
+    debug_inspector (1.1.0)
     diff-lcs (1.5.0)
     docile (1.4.0)
     e2mmap (0.1.0)
@@ -159,6 +162,7 @@ DEPENDENCIES
   async-http
   async-rspec
   async-tools!
+  binding_of_caller
   overcommit
   rake
   rspec
