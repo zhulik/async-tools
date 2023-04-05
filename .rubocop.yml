@@ -62,6 +62,3 @@ Style/WordArray:
 
 Style/NumberedParametersLimit:
   Max: 2
-
-RSpec/EmptyExampleGroup:
-  Enabled: false
