@@ -67,21 +67,6 @@ RSpec.describe Async::SObject::HasChildren do
     end
   end
 
-  describe "#free_children" do
-    subject { object.free_children }
-
-    let(:child) { double(parent: object, free: nil) } # rubocop:disable RSpec/VerifiedDoubles
-
-    before do
-      object.add_child(child)
-    end
-
-    it "calls #free on every children" do
-      subject
-      expect(child).to have_received(:free)
-    end
-  end
-
   describe "#all_objects" do
     subject { object.all_objects }
 

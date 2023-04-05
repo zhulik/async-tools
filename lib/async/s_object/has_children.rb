@@ -18,6 +18,5 @@ module Async::SObject::HasChildren
     children.delete(obj)
   end
 
-  def free_children = children.each(&:free)
   def all_objects = children.flat_map(&:all_objects) + [self]
 end
