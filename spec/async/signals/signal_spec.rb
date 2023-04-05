@@ -154,25 +154,4 @@ RSpec.describe Async::Signals::Signal do
       end
     end
   end
-
-  it "works", async: false do
-    emitter = Class.new do
-      extend Async::Signals
-
-      signal :something_happened, String
-
-      def something(arg) = emit(:something_happened, arg)
-    end.new
-
-    connections = Array.new(10) do |i|
-      emitter.something_happened.connect(mode: :queued) do |value|
-        sleep(0.1)
-        pp("#{i}: #{value}")
-      end
-    end
-
-    emitter.something(SecureRandom.hex)
-    emitter.something(SecureRandom.hex)
-    connections.each(&:disconnect)
-  end
 end
