@@ -3,9 +3,13 @@
 class Async::Signals::Connection
   include Async::Logger
 
+  Signal = Async::Signals::Signal
+
   attr_reader :callable, :mode, :signal
 
   def initialize(callable, signal, mode:, one_shot:, parent: Async::Task.current)
+    Async::Signals::Validator.new(signal).validate_callable_type!(callable)
+
     @callable = callable
     @signal = signal
     @mode = mode
@@ -34,9 +38,9 @@ class Async::Signals::Connection
   end
 
   def direct_call(args)
-    return @callable.send(:emit, *args) if @callable.respond_to?(:emit, true)
+    return @callable.call(*args) if @callable.is_a?(Method) || @callable.is_a?(Signal)
 
-    @callable.call(*args)
+    @callable.send("on_#{@signal.name}", *args)
   rescue StandardError => e
     warn(e)
   end

@@ -4,7 +4,7 @@ module Async::Signals
   class EmitError < ArgumentError; end
 
   module InstanceMethods
-    def emit(name, *args) = send(name).send(:emit, *args)
+    def emit(name, *args) = send(name).call(*args)
   end
 
   def self.extended(base)

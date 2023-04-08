@@ -13,6 +13,8 @@ RSpec.describe Async::Signals do
 
   let(:object) { klass.new }
 
+  let(:receiver) { double(on_something_changed: nil) } # rubocop:disable RSpec/VerifiedDoubles
+
   describe "emitting signals" do
     subject { object.emit_signal(*args) }
 
@@ -20,10 +22,9 @@ RSpec.describe Async::Signals do
       let(:args) { ["blah", "blah"] }
 
       it "notifies subscribers" do
-        expect do |b|
-          object.something_changed.connect(Proc.new(&b))
-          subject
-        end.to yield_control.once
+        object.something_changed.connect(receiver)
+        subject
+        expect(receiver).to have_received(:on_something_changed)
       end
     end
 
@@ -32,10 +33,9 @@ RSpec.describe Async::Signals do
       let(:args) { ["blah", my_string.new("123")] }
 
       it "notifies subscribers" do
-        expect do |b|
-          object.something_changed.connect(Proc.new(&b))
-          subject
-        end.to yield_control.once
+        object.something_changed.connect(receiver)
+        subject
+        expect(receiver).to have_received(:on_something_changed)
       end
     end
 

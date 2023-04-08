@@ -10,10 +10,15 @@ class Async::Signals::Signal
     @name = name
     @arg_types = arg_types
 
-    @validator = Validator.new(arg_types)
+    @validator = Validator.new(self)
     @connections = {}
   end
 
+  # Only 3 ways to connect:
+  # some_object.some_signal.connect(receiver) -> receiver#on_some_signal
+  # some_object.some_signal.connect(receiver.method(:do_something)) -> receiver#do_something
+  # some_object.some_signal.connect(receiver.another_signal) ->  emits receiver#another_signal
+  # Blocks, Procs and Lambda are not supported on purpose
   def connect(callable = nil, mode: :direct, one_shot: false)
     @validator.validate_callable!(callable)
 
@@ -24,12 +29,12 @@ class Async::Signals::Signal
     raise ArgumentError, "given callable is not connected to this signal" if @connections.delete(callable).nil?
   end
 
-  private
-
   def emit(*args)
     @validator.validate_args!(args)
     notify_subscribers(args)
   end
+
+  def call(...) = emit(...)
 
   def notify_subscribers(args)
     @connections.values.shuffle.each do |connection|
