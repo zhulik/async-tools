@@ -55,14 +55,6 @@ RSpec.describe Async::Signals::Signal do
         expect { subject }.to raise_error(ArgumentError, "callable must respond to #call or be a Signal")
       end
     end
-
-    context "when neither callable or block is given" do
-      subject { signal.connect }
-
-      it "raises an exception" do
-        expect { subject }.to raise_error(ArgumentError, "callable OR block must be passed")
-      end
-    end
   end
 
   describe "#disconnect" do
@@ -108,19 +100,10 @@ RSpec.describe Async::Signals::Signal do
   describe "#emit" do
     subject { signal.send(:emit, "blah", "blah") }
 
-    context "when connected to a block" do
-      it "notifies receiver" do
-        expect do |b|
-          signal.connect(&b)
-          subject
-        end.to yield_control.once
-      end
-    end
-
     context "when has one shot connection" do
       it "notifies receiver" do
         expect do |b|
-          signal.connect(one_shot: true, &b)
+          signal.connect(Proc.new(&b), one_shot: true)
           subject
         end.to yield_control.once
       end
@@ -136,7 +119,7 @@ RSpec.describe Async::Signals::Signal do
     context "when connected to a callable" do
       it "notifies receiver" do
         expect do |b|
-          signal.connect(lambda(&b)) # rubocop:disable Lint/LambdaWithoutLiteralBlock
+          signal.connect(Proc.new(&b))
           subject
         end.to yield_control.once
       end
@@ -148,7 +131,7 @@ RSpec.describe Async::Signals::Signal do
       it "notifies receiver" do
         signal.connect(another_signal)
         expect do |b|
-          another_signal.connect(&b)
+          another_signal.connect(Proc.new(&b))
           subject
         end.to yield_control.once
       end

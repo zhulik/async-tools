@@ -13,24 +13,15 @@ class Async::Signals::Validator
     raise Async::Signals::EmitError, "expected args: #{@arg_types}. given: #{types}"
   end
 
-  def validate_callable!(callable, block)
-    get_signal_or_callable!(callable, block).tap do |callable_or_signal|
-      validate_callable_type!(callable_or_signal)
-      validate_signal_arity!(callable_or_signal) if callable_or_signal.respond_to?(:emit, true)
-      validate_arity!(callable_or_signal) if callable_or_signal.respond_to?(:arity)
-    end
+  def validate_callable!(callable)
+    validate_callable_type!(callable)
+    validate_signal_arity!(callable) if callable.respond_to?(:emit, true)
+    validate_arity!(callable) if callable.respond_to?(:arity)
   end
 
   private
 
   def types_match?(types) = types.each.with_index.all? { _1.ancestors.include?(@arg_types[_2]) }
-
-  def get_signal_or_callable!(callable, block)
-    callables = [callable, block]
-    return callable || block if callables.count(&:nil?) == 1
-
-    raise ArgumentError, "callable OR block must be passed"
-  end
 
   def validate_callable_type!(callable)
     return if callable.respond_to?(:call) || callable.respond_to?(:emit, true)

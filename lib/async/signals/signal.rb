@@ -14,8 +14,8 @@ class Async::Signals::Signal
     @connections = {}
   end
 
-  def connect(callable = nil, mode: :direct, one_shot: false, &block)
-    callable = @validator.validate_callable!(callable, block)
+  def connect(callable = nil, mode: :direct, one_shot: false)
+    @validator.validate_callable!(callable)
 
     Connection.new(callable, self, mode:, one_shot:).tap { @connections[callable] = _1 }
   end

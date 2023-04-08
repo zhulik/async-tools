@@ -21,7 +21,7 @@ RSpec.describe Async::Signals do
 
       it "notifies subscribers" do
         expect do |b|
-          object.something_changed.connect(&b)
+          object.something_changed.connect(Proc.new(&b))
           subject
         end.to yield_control.once
       end
@@ -33,7 +33,7 @@ RSpec.describe Async::Signals do
 
       it "notifies subscribers" do
         expect do |b|
-          object.something_changed.connect(&b)
+          object.something_changed.connect(Proc.new(&b))
           subject
         end.to yield_control.once
       end
